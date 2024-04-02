@@ -1,3 +1,6 @@
+BackEnd/go.mod
+
+# Front End
 # Miscellaneous
 *.class
 *.log
@@ -36,3 +39,33 @@ pubspec.lock
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
+# Back End
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Executables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go binary
+bin/
+
+# Go test cache
+*.test
+
+# Gin generated files
+gin-bin/
+
+# IDE specific files
+.idea/
+.vscode/
+
+*.mod
+*.sum
