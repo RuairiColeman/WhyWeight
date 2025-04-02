@@ -28,17 +28,22 @@ export default function LogScreen() {
         console.error('No user is logged in');
       }
     });
-  
+
     fetchLogs();
-  
+
     return unsubscribe; // Cleanup the listener
   }, []);
 
   const fetchLogs = async () => {
     try {
-      const logsQuery = query(collection(db, 'logs'), orderBy('date', 'desc'));
+      const logsQuery = query(
+        collection(db, 'logs'),
+        orderBy('date', 'desc')
+      );
       const querySnapshot = await getDocs(logsQuery);
-      const logsData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const logsData = querySnapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((log) => log.uid === auth.currentUser?.uid); // Filter logs by the user's UID
       setLogs(logsData);
     } catch (error) {
       console.error('Error fetching logs:', error);
@@ -52,11 +57,11 @@ export default function LogScreen() {
     }
     try {
       await addDoc(collection(db, 'logs'), {
-        name: user.name || 'Unknown', // Fallback to 'Unknown' if name is missing
+        uid: auth.currentUser?.uid, // Associate the log with the user's UID
+        name: user.name, // Include the user's name
         weight: parseFloat(weight),
         date: new Date(),
       });
-      console.log('Weight:', weight);
       setWeight('');
       fetchLogs();
     } catch (error) {
