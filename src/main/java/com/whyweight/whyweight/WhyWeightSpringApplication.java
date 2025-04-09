@@ -1,9 +1,10 @@
 package com.whyweight.whyweight;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 public class WhyWeightSpringApplication {
@@ -14,4 +15,16 @@ public class WhyWeightSpringApplication {
 		SpringApplication.run(WhyWeightSpringApplication.class, args);
 	}
 
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**")
+						.allowedOrigins("*") // Replace with your Flutter app's URL
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+						.allowedHeaders("*");
+			}
+		};
+	}
 }
