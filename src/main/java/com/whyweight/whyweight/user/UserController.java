@@ -1,15 +1,36 @@
 package com.whyweight.whyweight.user;
 
+import com.whyweight.whyweight.LoginRequest;
+import com.whyweight.whyweight.security.JwtUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 public class UserController {
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
+        Optional<User> user = userService.findByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        if (user.isPresent()) {
+            String token = jwtUtil.generateToken(user.get().getId());
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+        }
     }
 
     @GetMapping("/users")
@@ -24,6 +45,7 @@ public class UserController {
 
     @PostMapping("/users")
     User createUser(@RequestBody User user) {
+        System.out.println("Received user: " + user);
         return userService.create(user);
     }
 
