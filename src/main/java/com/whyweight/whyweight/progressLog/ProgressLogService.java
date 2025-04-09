@@ -13,8 +13,11 @@ public class ProgressLogService {
         this.progressLogRepository = progressLogRepository;
     }
 
-    public List<ProgressLog> findAll() {
-        return progressLogRepository.findAll();
+    public List<ProgressLog> findAllByUserId(Integer userId) {
+        return progressLogRepository.findAll()
+                .stream()
+                .filter(progress -> progress.getUserId().equals(userId))
+                .toList();
     }
 
     public ProgressLog findById(String id) {

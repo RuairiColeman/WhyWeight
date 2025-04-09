@@ -1,5 +1,6 @@
 package com.whyweight.whyweight.progressLog;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +17,16 @@ public class ProgressLogController {
 
     }
 
-    // Add methods to handle HTTP requests for progress logs
+    @PostMapping("/progress")
+    ProgressLog createProgressLog(@RequestBody ProgressLog progressLog, @RequestHeader("userId") Integer userId) {
+        progressLog.setUserId(userId);
+        return progressLogService.create(progressLog);
+    }
+
     @GetMapping("/progress")
-    List<ProgressLog> getAllProgressLogs() {
-        progressLog.getTrendWeight();
-        return progressLogService.findAll();
+    List<ProgressLog> getProgressLog(HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        return progressLogService.findAllByUserId(userId);
     }
 
     @GetMapping("/progress/{id}")
@@ -28,11 +34,6 @@ public class ProgressLogController {
         return progressLogService.findById(id);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/progress")
-    ProgressLog createProgressLog(@RequestBody ProgressLog progressLog) {
-        return progressLogService.create(progressLog);
-    }
 
     @DeleteMapping ("/progress/{id}")
     void deleteProgressLog(@PathVariable String id) {

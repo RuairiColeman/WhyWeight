@@ -1,7 +1,11 @@
 package com.whyweight.whyweight.progressLog;
 
+import com.whyweight.whyweight.SequenceGenerator.SequenceGeneratorService;
 import com.whyweight.whyweight.user.User;
+import jakarta.annotation.PostConstruct;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,37 +14,39 @@ import java.time.LocalDate;
 @Document(collection = "progressLog")
 public class ProgressLog {
     @Id
-    String id;
+    private Integer id;
     private LocalDate date;
     private int currentWeight;
     private int previousWeight;
-    @DBRef
-    private User user;
+
+    private Integer userId;
     //private int bodyFat;
     //private int muscleMass;
 
 
-    public User getUser() {
-        return user;
+    SequenceGeneratorService sequenceGeneratorService;
+
+    @Transient
+    public static final String SEQUENCE_NAME = "users_sequence";
+
+    @PostConstruct
+    public void generateId() {
+        this.id = sequenceGeneratorService.generateSequence(SEQUENCE_NAME);
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setUserId(String userId) {
-        this.user.setId(userId);
-    }
-
-    public String getUserId() {
-        return user.getId();
-    }
-
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public void setId(Integer id) {
         this.id = id;
     }
 
