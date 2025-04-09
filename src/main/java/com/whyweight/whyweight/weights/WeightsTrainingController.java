@@ -1,5 +1,6 @@
 package com.whyweight.whyweight.weights;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -15,8 +16,9 @@ public class WeightsTrainingController {
 
 
     @GetMapping("/weights")
-    List<WeightsTraining> findAll() {
-        return weightsTrainingService.findAll();
+    public List<WeightsTraining> getWeights(HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        return weightsTrainingService.findAllByUserId(userId);
     }
 
     @GetMapping("/weights/{id}")
@@ -26,7 +28,12 @@ public class WeightsTrainingController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/weights")
-    WeightsTraining create(@RequestBody WeightsTraining weightsTraining) {
+    WeightsTraining createWeights(@RequestBody WeightsTraining weightsTraining, HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        if (userId == null) {
+            throw new IllegalStateException("User ID is missing from the request.");
+        }
+        weightsTraining.setUserId(userId);
         return weightsTrainingService.create(weightsTraining);
     }
 

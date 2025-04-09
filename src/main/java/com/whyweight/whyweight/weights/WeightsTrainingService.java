@@ -1,5 +1,6 @@
 package com.whyweight.whyweight.weights;
 
+import com.whyweight.whyweight.SequenceGenerator.SequenceGeneratorService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,13 +9,18 @@ import java.util.List;
 public class WeightsTrainingService {
 
     private final WeightsTrainingRepository weightsTrainingRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public WeightsTrainingService(WeightsTrainingRepository weightsTrainingRepository) {
+    public WeightsTrainingService(WeightsTrainingRepository weightsTrainingRepository, SequenceGeneratorService sequenceGeneratorService) {
         this.weightsTrainingRepository = weightsTrainingRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
-    public List<WeightsTraining> findAll() {
-        return weightsTrainingRepository.findAll();
+    public List<WeightsTraining> findAllByUserId(Integer userId) {
+        return weightsTrainingRepository.findAll()
+                .stream()
+                .filter(weights -> weights.getUserId().equals(userId))
+                .toList();
     }
 
     public WeightsTraining findById(Integer id) {
@@ -22,6 +28,7 @@ public class WeightsTrainingService {
     }
 
     public WeightsTraining create(WeightsTraining weightsTraining) {
+        weightsTraining.setId(sequenceGeneratorService.generateSequence(WeightsTraining.SEQUENCE_NAME));
         return weightsTrainingRepository.save(weightsTraining);
     }
 //

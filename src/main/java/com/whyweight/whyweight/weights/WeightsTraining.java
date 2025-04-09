@@ -1,8 +1,8 @@
 package com.whyweight.whyweight.weights;
 
-import com.whyweight.whyweight.user.User;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.annotation.Transient;
+
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -10,30 +10,37 @@ import java.time.LocalDate;
 @Document(collection = "weights")
 public class WeightsTraining {
     @Id
-    Integer id;
+    private Integer id;
 
     private LocalDate date;
+    private String title;
     private String exercise;
     private int sets;
     private int reps;
     private double weight;
-    @DBRef
-    private User user;
 
-    public User getUser() {
-        return user;
+    private Integer userId;
+
+
+
+    @Transient
+    public static final String SEQUENCE_NAME = "weights_sequence";
+
+    public String getTitle() {
+        return title;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setUserId(String userId) {
-        this.user.setId(userId);
+    public Integer getUserId() {
+        return userId;
     }
 
-    public String getUserId() {
-        return user.getId();
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public Integer getId() { return id; }
