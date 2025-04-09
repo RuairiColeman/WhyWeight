@@ -13,7 +13,6 @@ public class WeightsTraining {
     private Integer id;
 
     private LocalDate date;
-    private String title;
     private String exercise;
     private int sets;
     private int reps;
@@ -25,15 +24,6 @@ public class WeightsTraining {
 
     @Transient
     public static final String SEQUENCE_NAME = "weights_sequence";
-
-    public String getTitle() {
-        return title;
-    }
-
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     public Integer getUserId() {
         return userId;
