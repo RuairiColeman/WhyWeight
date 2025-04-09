@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Document(collection = "progressLog")
 public class ProgressLog {
@@ -25,9 +26,10 @@ public class ProgressLog {
 
 
     SequenceGeneratorService sequenceGeneratorService;
+    ProgressLogRepository progressLogRepository;
 
     @Transient
-    public static final String SEQUENCE_NAME = "users_sequence";
+    public static final String SEQUENCE_NAME = "progress_sequence";
 
     @PostConstruct
     public void generateId() {
@@ -66,8 +68,13 @@ public class ProgressLog {
         this.currentWeight = currentWeight;
     }
 
-    public int getPreviousWeight() {
-        return previousWeight;
+    public int getPreviousWeight(Integer userId) {
+        List<ProgressLog> logs = progressLogRepository.findByUserIdOrderByDateDesc(userId);
+        if (logs.isEmpty()) {
+            return 0;
+            //throw new IllegalStateException("No progress logs found for user with ID: " + userId);
+        }
+        return logs.get(0).getCurrentWeight(); // Return the most recent weight
     }
 
     public void setPreviousWeight(int previousWeight) {

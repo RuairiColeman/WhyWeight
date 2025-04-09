@@ -1,10 +1,12 @@
 package com.whyweight.whyweight.progressLog;
 
+import com.whyweight.whyweight.weights.WeightsSession;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ProgressLogController {
@@ -18,9 +20,13 @@ public class ProgressLogController {
     }
 
     @PostMapping("/progress")
-    ProgressLog createProgressLog(@RequestBody ProgressLog progressLog, @RequestHeader("userId") Integer userId) {
+    ProgressLog createProgressLog(@RequestBody ProgressLog progressLog, HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        if (userId == null) {
+            throw new IllegalStateException("User ID is missing from the request.");
+        }
         progressLog.setUserId(userId);
-        return progressLogService.create(progressLog);
+        return progressLogService.createLog(progressLog);
     }
 
     @GetMapping("/progress")
@@ -29,14 +35,14 @@ public class ProgressLogController {
         return progressLogService.findAllByUserId(userId);
     }
 
-    @GetMapping("/progress/{id}")
-    ProgressLog getProgressLogById(@PathVariable String id) {
-        return progressLogService.findById(id);
-    }
+//    @GetMapping("/progress/{id}")
+//    ProgressLog getProgressLogById(@PathVariable Integer id) {
+//        return progressLogService.;
+//    }
 
 
-    @DeleteMapping ("/progress/{id}")
-    void deleteProgressLog(@PathVariable String id) {
-        progressLogService.delete(id);
-    }
+//    @DeleteMapping ("/progress/{id}")
+//    void deleteProgressLog(@PathVariable Integer id) {
+//        progressLogService.delete(id);
+//    }
 }
