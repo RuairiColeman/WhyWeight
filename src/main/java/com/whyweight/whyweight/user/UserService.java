@@ -33,10 +33,10 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public Optional<User> findByEmailAndPassword(String email, String password) {
+    public Optional<User> findByUsernameAndPassword(String username, String password) {
         return userRepository.findAll()
                 .stream()
-                .filter(user -> user.getEmail().equals(email) && user.getPassword().equals(password))
+                .filter(user -> user.getUsername().equals(username) && user.getPassword().equals(password))
                 .findFirst();
     }
 }

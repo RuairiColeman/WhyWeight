@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
 import globalStyles from '../../styles/globalStyles';
 
 const RegisterScreen = () => {
@@ -19,10 +19,27 @@ const RegisterScreen = () => {
         return !newErrors.username && !newErrors.email && !newErrors.password;
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (validateForm()) {
-            console.log('Form submitted:', formData);
-            // Add registration logic here
+            try {
+                const response = await fetch('http://192.168.4.75:8080/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const token = data.token; // Assuming the backend returns a JWT token
+                    const username = formData.username; // Extract username for testing
+                    navigation.navigate('Login');
+                } else {
+                    Alert.alert('Login Failed', 'Invalid credentials');
+                    console.log("JWT Token saved:", response.token);
+                }
+            } catch (error) {
+                console.error(error);
+                Alert.alert('Error', 'Something went wrong');
+            }
         }
     };
 

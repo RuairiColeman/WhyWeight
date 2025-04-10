@@ -2,6 +2,16 @@ package com.whyweight.whyweight;
 
 public class LoginRequest {
     private String email;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    String username;
     private String password;
 
     public String getEmail() {

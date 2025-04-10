@@ -22,7 +22,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
-        Optional<User> user = userService.findByEmailAndPassword(loginRequest.getEmail(), loginRequest.getPassword());
+        Optional<User> user = userService.findByUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword());
         if (user.isPresent()) {
             String token = jwtUtil.generateToken(user.get().getId());
             Map<String, String> response = new HashMap<>();
