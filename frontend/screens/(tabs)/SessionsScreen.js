@@ -3,6 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, Alert, TouchableOpacity, Style
 import globalStyles from '../../styles/globalStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const SessionsScreen = () => {
     const [sessions, setSessions] = useState([]);
@@ -10,7 +11,7 @@ const SessionsScreen = () => {
     const [error, setError] = useState(null);
     const [expandedSession, setExpandedSession] = useState(null);
     const [exercises, setExercises] = useState({});
-    const [refresh, setRefresh] = useState(false); // State to trigger refresh
+    const [refresh, setRefresh] = useState(false);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -25,11 +26,13 @@ const SessionsScreen = () => {
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    setSessions(data);
 
-                    // Fetch exercises for all sessions
+                    // Sort sessions by ID in descending order
+                    const sortedSessions = data.sort((a, b) => b.id - a.id);
+                    setSessions(sortedSessions);
+
                     const exercisesData = {};
-                    for (const session of data) {
+                    for (const session of sortedSessions) {
                         const exercisesResponse = await fetch(`http://192.168.4.75:8080/sessions/${session.id}`, {
                             method: 'GET',
                             headers: {
@@ -54,14 +57,10 @@ const SessionsScreen = () => {
         };
 
         fetchSessions();
-    }, [refresh]); // Re-fetch data when `refresh` changes
+    }, [refresh]);
 
     const toggleSession = (sessionId) => {
-        if (expandedSession === sessionId) {
-            setExpandedSession(null);
-        } else {
-            setExpandedSession(sessionId);
-        }
+        setExpandedSession(expandedSession === sessionId ? null : sessionId);
     };
 
     if (loading) {
@@ -82,13 +81,13 @@ const SessionsScreen = () => {
 
     return (
         <View style={globalStyles.container}>
-            <Text style={globalStyles.title}>Your Sessions</Text>
-            {/* Button to add a new session */}
+            <Text style={styles.screenTitle}>Your Sessions</Text>
             <TouchableOpacity
-                style={globalStyles.button}
+                style={styles.addButton}
                 onPress={() => navigation.navigate('AddSession', { onRefresh: () => setRefresh(!refresh) })}
             >
-                <Text style={globalStyles.buttonText}>Add New Session</Text>
+                <MaterialIcons name="add" size={24} color="#fff" />
+                <Text style={styles.addButtonText}>Add New Session</Text>
             </TouchableOpacity>
             <FlatList
                 data={sessions}
@@ -115,12 +114,12 @@ const SessionsScreen = () => {
                                         </View>
                                     )}
                                 />
-                                {/* Button to add an exercise to the session */}
                                 <TouchableOpacity
-                                    style={globalStyles.button}
+                                    style={styles.addExerciseButton}
                                     onPress={() => navigation.navigate('AddWorkout', { sessionId: item.id, onRefresh: () => setRefresh(!refresh) })}
                                 >
-                                    <Text style={globalStyles.buttonText}>Add Exercise</Text>
+                                    <MaterialIcons name="fitness-center" size={20} color="#fff" />
+                                    <Text style={styles.addExerciseButtonText}>Add Exercise</Text>
                                 </TouchableOpacity>
                             </>
                         )}
@@ -132,12 +131,38 @@ const SessionsScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    screenTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    addButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#007BFF',
+        padding: 15,
+        borderRadius: 8,
+        marginBottom: 20,
+    },
+    addButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 10,
+    },
     sessionCard: {
         marginBottom: 15,
         padding: 15,
         backgroundColor: '#fff',
         borderRadius: 8,
-        elevation: 2,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     sessionTitle: {
         fontSize: 18,
@@ -166,6 +191,21 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#555',
         marginTop: 5,
+    },
+    addExerciseButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#28a745',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 10,
+    },
+    addExerciseButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginLeft: 5,
     },
 });
 
