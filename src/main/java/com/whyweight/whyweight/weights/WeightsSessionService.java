@@ -26,7 +26,16 @@ public class WeightsSessionService {
 
     public WeightsSession addWorkoutToSession(Integer sessionId, WeightsTraining workout) {
         WeightsSession session = weightsSessionRepository.findById(sessionId).orElseThrow();
+
+        // Generate a unique ID for the workout
+        workout.setId(sequenceGeneratorService.generateSequence(WeightsTraining.SEQUENCE_NAME));
+
+        // Set the userId from the session
+        workout.setUserId(session.getUserId());
+
+        // Add the workout to the session
         session.addWorkout(workout);
+
         return weightsSessionRepository.save(session);
     }
 
