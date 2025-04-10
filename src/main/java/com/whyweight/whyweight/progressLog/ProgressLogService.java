@@ -1,8 +1,6 @@
 package com.whyweight.whyweight.progressLog;
 
 import com.whyweight.whyweight.SequenceGenerator.SequenceGeneratorService;
-import com.whyweight.whyweight.weights.WeightsSession;
-import com.whyweight.whyweight.weights.WeightsTraining;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,27 +17,27 @@ public class ProgressLogService {
         this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
-    public List<ProgressLog> findAllByUserId(Integer userId) {
-        return progressLogRepository.findAll()
-                .stream()
-                .filter(progress -> progress.getUserId().equals(userId))
-                .toList();
-    }
+    public ProgressLog createLog(Integer userId, double currentWeight) {
+        ProgressLog log = new ProgressLog();
+        log.setId(sequenceGeneratorService.generateSequence(ProgressLog.SEQUENCE_NAME));
+        log.setDate(LocalDate.now());
+        log.setCurrentWeight(currentWeight);
+        log.setUserId(userId);
 
-    public ProgressLog createLog(ProgressLog log) {
-        // Check if the user has previous logs
-        List<ProgressLog> logs = progressLogRepository.findByUserIdOrderByDateDesc(log.getUserId());
-        if (!logs.isEmpty()) {
-            // Set the previousWeight to the currentWeight of the most recent log
-            log.setPreviousWeight(logs.get(0).getCurrentWeight());
+        // Check if this is the first log for the user
+        List<ProgressLog> logs = progressLogRepository.findByUserIdOrderByDateDesc(userId);
+        if (logs.isEmpty()) {
+            log.setOriginalWeight(currentWeight);
+            log.setPreviousWeight(null); // No previous weight for the first log
         } else {
-            // No previous logs, set previousWeight to 0 or leave it unset
-            log.setPreviousWeight(0);
+            log.setOriginalWeight(logs.get(0).getOriginalWeight());
+            log.setPreviousWeight(logs.get(0).getCurrentWeight());
         }
 
-        // Generate a new ID for the log
-        log.setId(sequenceGeneratorService.generateSequence(ProgressLog.SEQUENCE_NAME));
         return progressLogRepository.save(log);
     }
 
+    public List<ProgressLog> findAllByUserId(Integer userId) {
+        return progressLogRepository.findByUserIdOrderByDateDesc(userId);
+    }
 }
