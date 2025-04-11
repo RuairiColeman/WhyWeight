@@ -5,7 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TrackScreen = () => {
     const [chartData, setChartData] = useState([]);
-    const [weight, setWeight] = useState(''); // State for weight input
+    const [weight, setWeight] = useState('');
+    const [weightLost, setWeightLost] = useState(null); // State for weight lost
     const ref = useRef(null);
 
     useEffect(() => {
@@ -26,17 +27,21 @@ const TrackScreen = () => {
                 const data = await response.json();
                 const formattedData = data.map((log) => {
                     const date = new Date(log.date);
-                    const day = date.getDate();
-                    const suffix = (day % 10 === 1 && day !== 11) ? 'st' :
-                        (day % 10 === 2 && day !== 12) ? 'nd' :
-                            (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
-                    const formattedDate = `${day}${suffix}\n${date.toLocaleString('default', { month: 'short' })}\n'${date.getFullYear().toString().slice(-2)}`;
+                    const formattedDate = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'numeric' }); // Format as DD/MM
                     return {
                         value: log.currentWeight,
                         label: formattedDate,
+                        dataPointText: `${log.currentWeight} kg`, // Add weight as label
                     };
                 });
                 setChartData(formattedData);
+
+                // Calculate weight lost
+                if (data.length > 0) {
+                    const originalWeight = data[data.length - 1].currentWeight; // First-ever logged weight
+                    const currentWeight = data[0].currentWeight; // Most recent weight
+                    setWeightLost(originalWeight - currentWeight);
+                }
             } else {
                 console.error('Failed to fetch progress logs');
             }
@@ -59,7 +64,7 @@ const TrackScreen = () => {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ currentWeight: parseFloat(weight) }),
+                body: JSON.stringify({ currentWeight: parseFloat(weight), originalWeight: parseFloat(weight)}),
             });
 
             if (response.ok) {
@@ -96,26 +101,29 @@ const TrackScreen = () => {
     const yAxisRange = getYAxisRange();
 
     return (
-        <View>
+        <View style={styles.chartContainer}>
             <LineChart
+
                 scrollRef={ref}
                 data={chartData}
                 curved
-                initialSpacing={0}
-                spacing={100}
-                rotateLabel={false} // Set to true if you want to rotate the labels
+                initialSpacing={10}
+                spacing={150}
+                rotateLabel={false}
                 yAxisOffset={yAxisRange.min - 5}
                 maxValue={yAxisRange.max + 5}
+                rulesLength={325}
                 yAxisColor="lightgray"
                 xAxisColor="lightgray"
                 noOfSections={5}
                 yAxisLabelSuffix=" kg"
                 xAxisLabelTextStyle={{
-                    fontSize: 10, // Adjust font size for better readability
-                    color: '#333', // Set label color
-                    textAlign: 'center', // Center align the labels
+                    fontSize: 10,
+                    color: '#333',
+                    textAlign: 'center',
                 }}
-                xAxisLabelWidth={50} // Adjust width to prevent overlap
+                xAxisLabelWidth={1}
+
             />
             <View style={styles.logWeightContainer}>
                 <TextInput
@@ -129,21 +137,16 @@ const TrackScreen = () => {
                     <Text style={styles.buttonText}>Log Weight</Text>
                 </TouchableOpacity>
             </View>
+            {weightLost !== null && (
+                <View style={styles.weightLostContainer}>
+                    <Text style={styles.weightLostText}>Weight +/-: {weightLost.toFixed(1)} kg</Text>
+                </View>
+            )}
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    monthsContainer: {
-        flexDirection: 'row',
-        marginLeft: 8,
-    },
-    monthButton: {
-        padding: 6,
-        margin: 4,
-        backgroundColor: '#ebb',
-        borderRadius: 8,
-    },
     logWeightContainer: {
         flexDirection: 'row',
         marginTop: 20,
@@ -166,6 +169,22 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontWeight: 'bold',
+    },
+    weightLostContainer: {
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    weightLostText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    chartContainer: {
+        marginHorizontal: 20, // Add space on the sides
+        marginTop: 30, // Add space above the chart
+        padding: 10, // Add padding inside the container
+        backgroundColor: '#f9f9f9', // Optional: Add a background color
+        borderRadius: 10, // Optional: Add rounded corners
     },
 });
 
