@@ -49,8 +49,7 @@ const LoginPage = () => {
 
     return (
         <View style={globalStyles.container}>
-            <Image source={require('../../assets/logoPlaceholder.png')} style={{ width: 100, height: 100, alignSelf: 'center', marginBottom: 20 }} />
-            <Text style={globalStyles.title}>WhyWeight</Text>
+            <Image source={require('../../assets/whyWeightLogoOffWhite.jpg')} style={{ width: 200, height: 200, alignSelf: 'center', marginBottom: 20 }} />
             <View style={{ marginBottom: 20 }}>
                 <Text style={{ fontSize: 16, color: '#555', marginBottom: 5 }}>Username</Text>
                 <TextInput

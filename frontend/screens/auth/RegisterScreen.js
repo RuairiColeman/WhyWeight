@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
 import globalStyles from '../../styles/globalStyles';
+import {useNavigation} from "@react-navigation/native";
 
 const RegisterScreen = () => {
+    const navigation = useNavigation();
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
     const [errors, setErrors] = useState({ username: '', email: '', password: '' });
 

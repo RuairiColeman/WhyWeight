@@ -4,7 +4,7 @@ import globalStyles from '../styles/globalStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddSession = ({ navigation, route }) => {
-    const { onRefresh } = route.params; // Get the callback function
+    const onRefresh = route?.params?.onRefresh || (() => {}); // Provide a default no-op function
     const [title, setTitle] = useState('');
 
     const handleAddSession = async () => {
